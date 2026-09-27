@@ -1,0 +1,6 @@
+categoria,test,orden,tipo,pregunta,opcion_a,opcion_b,opcion_c,opcion_d,opcion_e,opcion_f,correctas
+Peques,Test 1 - Genesis,1,verdadero_falso,Dios creo el mundo en seis dias,Verdadero,Falso,,,,,a
+Peques,Test 1 - Genesis,2,unica,Quien construyo el arca?,Moises,Noe,Abraham,David,,,b
+Peques,Test 1 - Genesis,3,multiple,Cuales de estos son hijos de Noe? (elige todas las que correspondan),Sem,Cam,Jafet,Ismael,,,"a,b,c"
+Medianos,Test 1 - Exodo,1,verdadero_falso,Moises recibio los diez mandamientos en el monte Sinai,Verdadero,Falso,,,,,a
+Medianos,Test 1 - Exodo,2,unica,Cuantas plagas envio Dios sobre Egipto?,7,10,12,3,,,b
