@@ -12,6 +12,9 @@ export interface Profile {
   id: string
   username: string
   display_name: string
+  first_name: string | null
+  last_name: string | null
+  birth_date: string | null
   category_id: string
   is_admin: boolean
   created_at: string

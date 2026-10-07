@@ -1,5 +1,5 @@
 import { useState, type FormEvent } from 'react'
-import { Navigate } from 'react-router-dom'
+import { Link, Navigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { isSupabaseConfigured } from '../lib/supabaseClient'
 
@@ -24,7 +24,7 @@ function LoginPage() {
   return (
     <main className="shell auth-shell">
       <form className="auth-card" onSubmit={handleSubmit}>
-        <p className="eyebrow">Examenes Rafa</p>
+        <p className="eyebrow">Examenes</p>
         <h1>Iniciar sesion</h1>
         {!isSupabaseConfigured && (
           <p className="auth-warning">
@@ -54,6 +54,9 @@ function LoginPage() {
         <button className="primary-button" type="submit" disabled={submitting || !isSupabaseConfigured}>
           {submitting ? 'Entrando...' : 'Entrar'}
         </button>
+        <p className="auth-footnote">
+          No tienes cuenta? <Link to="/registro">Registrate aqui</Link>
+        </p>
       </form>
     </main>
   )

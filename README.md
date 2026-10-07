@@ -7,6 +7,7 @@ Aplicacion web para examenes teologicos de una iglesia, organizada por categoria
 Hay una aplicacion funcional, ya conectada a un proyecto Supabase real (`Examenes`, org `Anzi`) con las migraciones y el contenido de ejemplo de 1 Samuel 1 cargados:
 
 - Login con usuario/contrasena (mapeado a Supabase Auth con un email sintetico).
+- Autoregistro: cualquiera crea su propia cuenta (nombre, apellido, fecha de nacimiento, categoria, usuario y contrasena) sin intervencion de un admin.
 - Panel principal con las categorias de edad y los tests de la categoria del participante.
 - Flujo de examen: preguntas V/F, respuesta unica y respuesta multiple, entrega y correccion en el servidor (`submit_attempt`), un intento por test.
 - Clasificaciones: por test, acumulada por categoria y general, cada una accesible desde el menu principal.
@@ -48,6 +49,7 @@ Falta: alta de usuarios/categorias/tests reales del profesor (solo hay 2 usuario
 ### Fase 4: Flujo del participante
 
 - [x] Pantalla de login.
+- [x] Pantalla de registro (`/registro`): nombre, apellido, fecha de nacimiento, categoria, usuario y contrasena; aviso no bloqueante si la edad no corresponde a la categoria elegida.
 - [x] Menu principal segun la categoria del usuario.
 - [x] Presentacion del test con progreso (respuestas en memoria mientras se responde; no hay guardado parcial en el servidor).
 - [x] Correccion en servidor (`submit_attempt`, `security definer`) y guardado de un intento inmutable.
@@ -58,6 +60,7 @@ Falta: alta de usuarios/categorias/tests reales del profesor (solo hay 2 usuario
 - [x] Ranking por test (pestana "Por test" en Clasificaciones).
 - [x] Ranking acumulado dentro de cada categoria.
 - [x] Ranking general entre todas las categorias.
+- [x] Mostrar nombre y apellido reales en vez del usuario (los rankings ya leen `profiles.display_name`, que ahora se rellena como "Nombre Apellido" al registrarse).
 - [ ] Estados vacios cubiertos; empates resueltos por la vista; falta decidir la ocultacion de resultados mientras un examen siga abierto.
 
 ### Fase 6: Administracion y publicacion

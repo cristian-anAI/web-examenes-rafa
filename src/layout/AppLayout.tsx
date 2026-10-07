@@ -8,8 +8,8 @@ function AppLayout() {
     <main className="shell">
       <header className="topbar">
         <a className="brand" href="#/">
-          <span className="brand-mark">ER</span>
-          <span>Examenes Rafa</span>
+          <span className="brand-mark">E</span>
+          <span>Examenes</span>
         </a>
         <div className="user-area">
           <span className="status-dot" />
@@ -27,11 +27,6 @@ function AppLayout() {
       <section className="page-body">
         <Outlet />
       </section>
-
-      <footer>
-        <span>web-examenes-rafa</span>
-        <span>GitHub Pages + Supabase</span>
-      </footer>
     </main>
   )
 }
