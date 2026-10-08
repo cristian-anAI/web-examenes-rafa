@@ -196,6 +196,25 @@ function generateSql(records, { publish }) {
     }
   }
 
+  // Aviso (no bloqueante): el nivel lo decide la categoria de edad, nunca el
+  // participante, asi que cada combinacion categoria+test deberia tener un
+  // unico nivel. Si el CSV trae varios, probablemente sea un error de origen.
+  const difficultiesPerCategoryTest = new Map() // "categoria|||test" -> Set(nivel)
+  for (const group of tests.values()) {
+    const groupKey = `${group.categoria}|||${group.test}`
+    if (!difficultiesPerCategoryTest.has(groupKey)) difficultiesPerCategoryTest.set(groupKey, new Set())
+    difficultiesPerCategoryTest.get(groupKey).add(group.difficulty)
+  }
+  for (const [groupKey, difficulties] of difficultiesPerCategoryTest) {
+    if (difficulties.size > 1) {
+      const [categoria, test] = groupKey.split('|||')
+      console.warn(
+        `Aviso: la categoria "${categoria}" tiene mas de un nivel (${[...difficulties].join(', ')}) para el test "${test}". ` +
+          'El nivel deberia decidirlo solo la categoria de edad; revisa si el CSV mezcla niveles por error.',
+      )
+    }
+  }
+
   const lines = []
   lines.push('-- Generado automaticamente por scripts/import-questions.mjs')
   lines.push('-- Aplicar DESPUES de todas las migraciones de supabase/migrations.')

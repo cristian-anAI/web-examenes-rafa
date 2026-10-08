@@ -1,15 +1,9 @@
 import { useEffect, useMemo, useState, type FormEvent } from 'react'
 import { Link, Navigate, useNavigate } from 'react-router-dom'
 import { supabase, isSupabaseConfigured } from '../lib/supabaseClient'
-import { calculateAge } from '../lib/age'
+import { calculateAge, difficultyForMinAge } from '../lib/age'
 import { useAuth } from '../context/AuthContext'
-import type { AgeCategory, ExamDifficulty } from '../types/database'
-
-const DIFFICULTY_OPTIONS: { value: ExamDifficulty; label: string }[] = [
-  { value: 'facil', label: 'Facil (recomendado para 2-3 y 4-5 anos)' },
-  { value: 'medio', label: 'Medio (recomendado para 6-7 y 8-9 anos)' },
-  { value: 'dificil', label: 'Dificil (recomendado para 10-11, 18-35 y +35)' },
-]
+import type { AgeCategory } from '../types/database'
 
 function SignUpPage() {
   const { session, signUp } = useAuth()
@@ -19,7 +13,6 @@ function SignUpPage() {
   const [lastName, setLastName] = useState('')
   const [birthDate, setBirthDate] = useState('')
   const [categoryId, setCategoryId] = useState('')
-  const [difficulty, setDifficulty] = useState<ExamDifficulty | ''>('')
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
@@ -44,7 +37,7 @@ function SignUpPage() {
     if (!category) return null
     const age = calculateAge(birthDate)
     if (age < category.min_age || age > category.max_age) {
-      return `Aviso: la edad introducida (${age} anos) no coincide con el rango habitual de "${category.name}" (${category.min_age}-${category.max_age} anos). Puedes continuar igualmente.`
+      return `Aviso: la edad introducida (${age} años) no coincide con el rango habitual de "${category.name}" (${category.min_age}-${category.max_age} años). Puedes continuar igualmente.`
     }
     return null
   }, [birthDate, categoryId, categories])
@@ -55,7 +48,7 @@ function SignUpPage() {
     event.preventDefault()
     setError(null)
 
-    if (!firstName.trim() || !lastName.trim() || !birthDate || !categoryId || !difficulty || !username.trim()) {
+    if (!firstName.trim() || !lastName.trim() || !birthDate || !categoryId || !username.trim()) {
       setError('Rellena todos los campos.')
       return
     }
@@ -67,6 +60,13 @@ function SignUpPage() {
       setError('Las contrasenas no coinciden.')
       return
     }
+
+    const category = categories.find((c) => c.id === categoryId)
+    if (!category) {
+      setError('Selecciona una categoria valida.')
+      return
+    }
+    const difficulty = difficultyForMinAge(category.min_age)
 
     setSubmitting(true)
     const message = await signUp({ firstName, lastName, birthDate, username, password, categoryId, difficulty })
@@ -110,25 +110,12 @@ function SignUpPage() {
           <select value={categoryId} onChange={(event) => setCategoryId(event.target.value)} required>
             {categories.map((category) => (
               <option key={category.id} value={category.id}>
-                {category.name} ({category.min_age}-{category.max_age} anos)
+                {category.name} ({category.min_age}-{category.max_age} años)
               </option>
             ))}
           </select>
         </label>
         {ageWarning && <p className="auth-warning">{ageWarning}</p>}
-        <label>
-          Nivel del examen
-          <select
-            value={difficulty}
-            onChange={(event) => setDifficulty(event.target.value as ExamDifficulty | '')}
-            required
-          >
-            <option value="">Selecciona un nivel</option>
-            {DIFFICULTY_OPTIONS.map((option) => (
-              <option key={option.value} value={option.value}>{option.label}</option>
-            ))}
-          </select>
-        </label>
         <label>
           Usuario
           <input

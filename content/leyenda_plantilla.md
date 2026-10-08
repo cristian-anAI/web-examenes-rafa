@@ -6,7 +6,7 @@ Cada **fila** de la hoja es **una pregunta**. Estas son las columnas y qué se p
 |---|---|---|
 | `categoria` | El nombre del grupo de edad. Tiene que escribirse **exactamente igual** en todas las preguntas de ese grupo (mayúsculas/espacios incluidos). | `2-3`, `8-9` |
 | `test` | El título del examen. Todas las preguntas de un mismo examen llevan el **mismo texto**, tal cual. | `1 Samuel - Capitolul 1` |
-| `nivel` | Opcional: dificultad del examen (`facil`, `medio` o `dificil`). Si se omite, el importador usa `facil`. | `medio` |
+| `nivel` | Opcional: dificultad de esas preguntas (`facil`, `medio` o `dificil`). Si se omite, el importador usa `facil`. Importante: el participante **no elige** el nivel al registrarse, lo determina su categoria de edad (ver aviso abajo), asi que cada categoria solo debe tener filas del nivel que le corresponde. | `medio` |
 | `orden` | El número de la pregunta dentro de ese examen: 1, 2, 3... en orden, sin saltos ni repetidos. | `1`, `2`, `3` |
 | `tipo` | Solo puede ser una de estas tres palabras (ver leyenda de tipos abajo). | `unica` |
 | `pregunta` | El enunciado de la pregunta, tal cual se lee en voz alta. | `¿Cómo se llamaba la esposa de Elcana que no tenía hijos?` |
@@ -32,3 +32,4 @@ Cada **fila** de la hoja es **una pregunta**. Estas son las columnas y qué se p
 - Dejar huecos o repetir números en `orden` dentro del mismo test.
 - Poner en `correctas` una letra que no tiene texto en su `opcion_x`.
 - Si el texto de una pregunta u opción lleva comas, hay que escribirlo entre comillas dobles: `"Sem, Cam y Jafet"`.
+- Poner en una misma categoria de edad preguntas de dos niveles distintos (p. ej. filas `6-7`/`facil` y `6-7`/`medio` para el mismo examen): solo debe existir **una** combinacion categoria+nivel por examen, la que le corresponde segun el mapeo fijo del profesor.

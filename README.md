@@ -10,7 +10,7 @@ Hay una aplicacion funcional, ya conectada a un proyecto Supabase real (`Examene
 - Autoregistro: cualquiera crea su propia cuenta (nombre, apellido, fecha de nacimiento, categoria, usuario y contrasena) sin intervencion de un admin.
 - Panel principal con las categorias de edad y los tests de la categoria del participante.
 - Flujo de examen: preguntas V/F, respuesta unica y respuesta multiple, entrega y correccion en el servidor (`submit_attempt`), un intento por test.
-- En el registro cada participante elige categoria de edad y nivel (facil, medio o dificil); el aviso de edad/categoria sigue siendo informativo.
+- En el registro cada participante elige su categoria de edad; el nivel del examen (facil, medio o dificil) se calcula automaticamente a partir de la categoria (nunca lo elige el usuario) segun un mapeo fijo. El aviso de edad/categoria sigue siendo informativo.
 - Clasificaciones: por test, acumulada por categoria y general, cada una accesible desde el menu principal.
 - Esquema SQL completo con RLS y funciones de correccion server-side en `supabase/migrations`.
 
@@ -85,7 +85,7 @@ Pedirle al profesor una **hoja de calculo** (Excel o Google Sheets, exportada co
 | --- | --- |
 | `categoria` | Nombre exacto de la categoria de edad (debe coincidir con `age_categories.name`) |
 | `test` | Titulo del test; igual en todas las filas de ese test |
-| `nivel` | Opcional: `facil`, `medio` o `dificil`. Si se omite, el importador usa `facil`. |
+| `nivel` | Opcional: `facil`, `medio` o `dificil`. Si se omite, el importador usa `facil`. El nivel real que ve cada participante lo decide la categoria de edad (ver mapeo fijo mas abajo), no esta columna por si sola. |
 | `orden` | Posicion de la pregunta dentro del test (1, 2, 3...) |
 | `tipo` | `verdadero_falso`, `unica` o `multiple` |
 | `pregunta` | Enunciado |
@@ -94,7 +94,7 @@ Pedirle al profesor una **hoja de calculo** (Excel o Google Sheets, exportada co
 
 Ventajas de este formato: Google Sheets permite que el profesor y sus ayudantes editen a la vez, se puede validar con formulas (por ejemplo que `correctas` solo use letras con opcion rellenada), y de ahi se escribe facilmente un script que genere las filas de `tests`/`questions` para las migraciones o para un importador via Supabase. Si el profesor prefiere escribir en Word, puede hacerlo como borrador, pero alguien tendra que pasarlo a esta plantilla antes de cargarlo.
 
-El participante elige por separado su categoria de edad y su nivel de examen al registrarse. Los niveles disponibles son `facil`, `medio` y `dificil`; las recomendaciones por edad son 2-3/4-5, 6-7/8-9 y 10-11/18-35/+35, respectivamente. La categoria de edad conserva el aviso no bloqueante si no coincide con la edad declarada.
+El nivel del examen (`facil`, `medio` o `dificil`) lo asigna la app automaticamente segun la categoria de edad elegida al registrarse; el participante **no** elige el nivel. El mapeo fijo es: `2-3`/`4-5` -> facil, `6-7`/`8-9` -> medio, `10-11`/`18-35`/`+35` -> dificil (implementado en `src/lib/age.ts` y reforzado en el servidor por el trigger de la migracion `0007_auto_difficulty.sql`, que recalcula `profiles.difficulty` a partir de `age_categories.min_age` y asi protege contra llamadas directas a la API). La categoria de edad conserva el aviso no bloqueante si no coincide con la edad declarada.
 
 Ejemplo real: [content/ejemplo_1_samuel_1.csv](content/ejemplo_1_samuel_1.csv) muestra como quedarian las preguntas de `Intrebari 1 Samuel 1.pdf` (categorias "2-3" y "8-9", preguntas de una sola respuesta) ya pasadas a la plantilla.
 
@@ -114,9 +114,9 @@ npm run import:questions -- content/ejemplo_1_samuel_1.csv --draft
 
 El script valida el CSV (tipos reconocidos, letras de `correctas` que existen como opcion, niveles reconocidos y posiciones sin repetir dentro de cada test/categoria/nivel) y falla con un mensaje claro si algo no cuadra. Debe ejecutarse despues de aplicar las migraciones de `supabase/migrations`.
 
-El CSV nuevo del profesor se conserva en [content/ejemplo_1_samuel_1 - ejemplo_1_samuel_1.csv](content/ejemplo_1_samuel_1%20-%20ejemplo_1_samuel_1.csv). La version preparada para importar es [content/samuel_capitolul_1_2.csv](content/samuel_capitolul_1_2.csv): distribuye las 75 preguntas entre las siete categorias de edad indicadas y los tres niveles seleccionables. El SQL resultante esta en [supabase/seed/samuel_capitolul_1_2.sql](supabase/seed/samuel_capitolul_1_2.sql).
+El CSV original del profesor (categorias `usor`/`mediu`/`avansat`, sin mapear a edades) se conserva como referencia en [content/ejemplo_1_samuel_1 - ejemplo_1_samuel_1.csv](content/ejemplo_1_samuel_1%20-%20ejemplo_1_samuel_1.csv); no se importa directamente. La version ya mapeada a categorias de edad y filtrada al mapeo fijo (una sola variante de nivel por categoria, 7 tests x 25 preguntas = 175) es [content/samuel_capitolul_1_2.csv](content/samuel_capitolul_1_2.csv). El SQL resultante esta en [supabase/seed/samuel_capitolul_1_2.sql](supabase/seed/samuel_capitolul_1_2.sql).
 
-Para publicarlo en Supabase, aplica primero la migracion `0006_exam_difficulty.sql` junto con las migraciones pendientes y despues ejecuta el seed anterior en el SQL editor. La migracion agrega el nivel al perfil y al examen, conserva el aviso por discrepancia de edad y separa las clasificaciones por nivel.
+Para publicarlo en Supabase, aplica primero las migraciones pendientes (incluidas `0006_exam_difficulty.sql` y `0007_auto_difficulty.sql`) y despues ejecuta el seed anterior en el SQL editor. Las migraciones agregan el nivel al perfil y al examen, lo calculan automaticamente por categoria (nunca lo elige el participante), conservan el aviso por discrepancia de edad y separan las clasificaciones por nivel.
 
 ## Desarrollo local
 

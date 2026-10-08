@@ -56,7 +56,7 @@ function DashboardPage() {
           return (
             <article className={`category-card ${CARD_COLORS[index % CARD_COLORS.length]}`} key={category.id}>
               <div className="card-topline">
-                <span>{category.min_age} - {category.max_age} anos</span>
+                <span>{category.min_age} - {category.max_age} años</span>
                 <span>{String(categoryTests.length).padStart(2, '0')}</span>
               </div>
               <h3>{category.name}</h3>
