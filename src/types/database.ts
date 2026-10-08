@@ -1,4 +1,5 @@
 export type QuestionType = 'true_false' | 'single_choice' | 'multiple_choice'
+export type ExamDifficulty = 'facil' | 'medio' | 'dificil'
 
 export interface AgeCategory {
   id: string
@@ -16,6 +17,7 @@ export interface Profile {
   last_name: string | null
   birth_date: string | null
   category_id: string
+  difficulty: ExamDifficulty
   is_admin: boolean
   created_at: string
 }
@@ -24,6 +26,7 @@ export interface Test {
   id: string
   category_id: string
   title: string
+  difficulty: ExamDifficulty
   is_published: boolean
   starts_at: string | null
   ends_at: string | null
@@ -74,6 +77,7 @@ export interface TestRankingRow {
 
 export interface CategoryRankingRow {
   category_id: string
+  difficulty: ExamDifficulty
   user_id: string
   display_name: string
   attempts_count: number
@@ -87,6 +91,7 @@ export interface GeneralRankingRow {
   display_name: string
   category_id: string
   category_name: string
+  difficulty: ExamDifficulty
   attempts_count: number
   total_score: number
   average_score: number
@@ -116,6 +121,10 @@ export interface Database {
           p_answers: { question_id: string; selected_options: string[] }[]
         }
         Returns: { attempt_id: string; score: number }
+      }
+      current_exam_difficulty: {
+        Args: Record<string, never>
+        Returns: ExamDifficulty
       }
     }
   }

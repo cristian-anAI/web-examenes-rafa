@@ -3,7 +3,13 @@ import { Link, Navigate, useNavigate } from 'react-router-dom'
 import { supabase, isSupabaseConfigured } from '../lib/supabaseClient'
 import { calculateAge } from '../lib/age'
 import { useAuth } from '../context/AuthContext'
-import type { AgeCategory } from '../types/database'
+import type { AgeCategory, ExamDifficulty } from '../types/database'
+
+const DIFFICULTY_OPTIONS: { value: ExamDifficulty; label: string }[] = [
+  { value: 'facil', label: 'Facil (recomendado para 2-3 y 4-5 anos)' },
+  { value: 'medio', label: 'Medio (recomendado para 6-7 y 8-9 anos)' },
+  { value: 'dificil', label: 'Dificil (recomendado para 10-11, 18-35 y +35)' },
+]
 
 function SignUpPage() {
   const { session, signUp } = useAuth()
@@ -13,6 +19,7 @@ function SignUpPage() {
   const [lastName, setLastName] = useState('')
   const [birthDate, setBirthDate] = useState('')
   const [categoryId, setCategoryId] = useState('')
+  const [difficulty, setDifficulty] = useState<ExamDifficulty | ''>('')
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
@@ -48,7 +55,7 @@ function SignUpPage() {
     event.preventDefault()
     setError(null)
 
-    if (!firstName.trim() || !lastName.trim() || !birthDate || !categoryId || !username.trim()) {
+    if (!firstName.trim() || !lastName.trim() || !birthDate || !categoryId || !difficulty || !username.trim()) {
       setError('Rellena todos los campos.')
       return
     }
@@ -62,7 +69,7 @@ function SignUpPage() {
     }
 
     setSubmitting(true)
-    const message = await signUp({ firstName, lastName, birthDate, username, password, categoryId })
+    const message = await signUp({ firstName, lastName, birthDate, username, password, categoryId, difficulty })
     setSubmitting(false)
     if (message) {
       setError(message)
@@ -109,6 +116,19 @@ function SignUpPage() {
           </select>
         </label>
         {ageWarning && <p className="auth-warning">{ageWarning}</p>}
+        <label>
+          Nivel del examen
+          <select
+            value={difficulty}
+            onChange={(event) => setDifficulty(event.target.value as ExamDifficulty | '')}
+            required
+          >
+            <option value="">Selecciona un nivel</option>
+            {DIFFICULTY_OPTIONS.map((option) => (
+              <option key={option.value} value={option.value}>{option.label}</option>
+            ))}
+          </select>
+        </label>
         <label>
           Usuario
           <input

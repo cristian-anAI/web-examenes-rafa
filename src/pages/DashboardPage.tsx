@@ -5,6 +5,7 @@ import { useAuth } from '../context/AuthContext'
 import type { AgeCategory, Test, TestAttempt } from '../types/database'
 
 const CARD_COLORS = ['coral', 'teal', 'gold']
+const DIFFICULTY_LABELS = { facil: 'Facil', medio: 'Medio', dificil: 'Dificil' } as const
 
 function DashboardPage() {
   const { profile } = useAuth()
@@ -67,7 +68,7 @@ function DashboardPage() {
                     const attempt = attempts.find((row) => row.test_id === test.id)
                     return (
                       <li key={test.id}>
-                        <span>{test.title}</span>
+                        <span>{test.title} ({DIFFICULTY_LABELS[test.difficulty]})</span>
                         {attempt ? (
                           <span className="test-done">Completado - {attempt.score}%</span>
                         ) : (

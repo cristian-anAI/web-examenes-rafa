@@ -2,7 +2,7 @@ import { createContext, useContext, useEffect, useState, type ReactNode } from '
 import type { Session } from '@supabase/supabase-js'
 import { supabase } from '../lib/supabaseClient'
 import { usernameToEmail } from '../lib/username'
-import type { Profile } from '../types/database'
+import type { ExamDifficulty, Profile } from '../types/database'
 
 export interface SignUpInput {
   firstName: string
@@ -11,6 +11,7 @@ export interface SignUpInput {
   username: string
   password: string
   categoryId: string
+  difficulty: ExamDifficulty
 }
 
 interface AuthContextValue {
@@ -108,6 +109,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       last_name: input.lastName.trim(),
       birth_date: input.birthDate,
       category_id: input.categoryId,
+      difficulty: input.difficulty,
     })
 
     if (profileError) {

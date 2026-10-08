@@ -16,6 +16,7 @@ import { readFileSync, writeFileSync } from 'node:fs'
 import path from 'node:path'
 
 const OPTION_LETTERS = ['a', 'b', 'c', 'd', 'e', 'f']
+const DIFFICULTIES = ['facil', 'medio', 'dificil']
 const TYPE_MAP = {
   verdadero_falso: 'true_false',
   unica: 'single_choice',
@@ -80,7 +81,7 @@ function sqlDollarQuote(value) {
 }
 
 function loadRows(csvPath) {
-  const text = readFileSync(csvPath, 'utf8')
+  const text = readFileSync(csvPath, 'utf8').replace(/^\uFEFF/, '')
   const table = parseCsv(text)
   if (table.length < 2) fail('El CSV no tiene filas de datos.')
   const header = table[0].map((h) => h.trim())
@@ -157,6 +158,8 @@ function buildQuestion(record) {
 function guessAgeRange(categoryName) {
   const match = categoryName.match(/^(\d+)\s*-\s*(\d+)$/)
   if (match) return { minAge: Number(match[1]), maxAge: Number(match[2]) }
+  const overMatch = categoryName.match(/^\+(\d+)$/)
+  if (overMatch) return { minAge: Number(overMatch[1]) + 1, maxAge: 120 }
   return null
 }
 
@@ -171,9 +174,14 @@ function generateSql(records, { publish }) {
       categories.set(record.categoria, guessAgeRange(record.categoria))
     }
 
-    const key = `${record.categoria}|||${record.test}`
+    const difficulty = record.nivel || 'facil'
+    if (!DIFFICULTIES.includes(difficulty)) {
+      fail(`Linea ${record.__line}: nivel "${difficulty}" desconocido (usa facil, medio o dificil).`)
+    }
+
+    const key = `${record.categoria}|||${record.test}|||${difficulty}`
     if (!tests.has(key)) {
-      tests.set(key, { categoria: record.categoria, test: record.test, questions: [] })
+      tests.set(key, { categoria: record.categoria, test: record.test, difficulty, questions: [] })
     }
     tests.get(key).questions.push(buildQuestion(record))
   }
@@ -182,7 +190,7 @@ function generateSql(records, { publish }) {
     const seen = new Set()
     for (const q of group.questions) {
       if (seen.has(q.position)) {
-        fail(`Test "${group.test}" (${group.categoria}): la posicion ${q.position} esta repetida.`)
+        fail(`Test "${group.test}" (${group.categoria}, ${group.difficulty}): la posicion ${q.position} esta repetida.`)
       }
       seen.add(q.position)
     }
@@ -190,7 +198,7 @@ function generateSql(records, { publish }) {
 
   const lines = []
   lines.push('-- Generado automaticamente por scripts/import-questions.mjs')
-  lines.push('-- Aplicar DESPUES de las migraciones de supabase/migrations (0001 a 0004).')
+  lines.push('-- Aplicar DESPUES de todas las migraciones de supabase/migrations.')
   lines.push('-- Revisa los rangos de edad de las categorias nuevas antes de ejecutar en produccion.')
   lines.push('')
   lines.push('begin;')
@@ -213,12 +221,13 @@ function generateSql(records, { publish }) {
   for (const group of tests.values()) {
     const sortedQuestions = [...group.questions].sort((a, b) => a.position - b.position)
     lines.push('')
-    lines.push(`-- Test: "${group.test}" (categoria: ${group.categoria}) - ${sortedQuestions.length} preguntas`)
+    lines.push(`-- Test: "${group.test}" (categoria: ${group.categoria}, nivel: ${group.difficulty}) - ${sortedQuestions.length} preguntas`)
     lines.push('with new_test as (')
-    lines.push('  insert into public.tests (category_id, title, is_published)')
+    lines.push('  insert into public.tests (category_id, title, difficulty, is_published)')
     lines.push('  values (')
     lines.push(`    (select id from public.age_categories where name = ${sqlDollarQuote(group.categoria)}),`)
     lines.push(`    ${sqlDollarQuote(group.test)},`)
+    lines.push(`    '${group.difficulty}'::public.exam_difficulty,`)
     lines.push(`    ${publish ? 'true' : 'false'}`)
     lines.push('  )')
     lines.push('  returning id')

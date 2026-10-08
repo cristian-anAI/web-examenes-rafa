@@ -6,6 +6,7 @@ Cada **fila** de la hoja es **una pregunta**. Estas son las columnas y qué se p
 |---|---|---|
 | `categoria` | El nombre del grupo de edad. Tiene que escribirse **exactamente igual** en todas las preguntas de ese grupo (mayúsculas/espacios incluidos). | `2-3`, `8-9` |
 | `test` | El título del examen. Todas las preguntas de un mismo examen llevan el **mismo texto**, tal cual. | `1 Samuel - Capitolul 1` |
+| `nivel` | Opcional: dificultad del examen (`facil`, `medio` o `dificil`). Si se omite, el importador usa `facil`. | `medio` |
 | `orden` | El número de la pregunta dentro de ese examen: 1, 2, 3... en orden, sin saltos ni repetidos. | `1`, `2`, `3` |
 | `tipo` | Solo puede ser una de estas tres palabras (ver leyenda de tipos abajo). | `unica` |
 | `pregunta` | El enunciado de la pregunta, tal cual se lee en voz alta. | `¿Cómo se llamaba la esposa de Elcana que no tenía hijos?` |

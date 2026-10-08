@@ -15,16 +15,18 @@ function RankingsPage() {
   const [generalRanking, setGeneralRanking] = useState<GeneralRankingRow[]>([])
 
   useEffect(() => {
-    if (!supabase) return
+    if (!supabase || !profile) return
     supabase
       .from('tests')
       .select('*')
+      .eq('category_id', profile.category_id)
+      .eq('difficulty', profile.difficulty)
       .order('created_at')
       .then(({ data }) => {
         setTests(data ?? [])
         setSelectedTest((current) => current || data?.[0]?.id || '')
       })
-  }, [])
+  }, [profile])
 
   useEffect(() => {
     if (!supabase || !selectedTest) return
@@ -42,18 +44,20 @@ function RankingsPage() {
       .from('category_rankings')
       .select('*')
       .eq('category_id', profile.category_id)
+      .eq('difficulty', profile.difficulty)
       .order('rank')
       .then(({ data }) => setCategoryRanking(data ?? []))
   }, [profile])
 
   useEffect(() => {
-    if (!supabase) return
+    if (!supabase || !profile) return
     supabase
       .from('general_rankings')
       .select('*')
+      .eq('difficulty', profile.difficulty)
       .order('rank')
       .then(({ data }) => setGeneralRanking(data ?? []))
-  }, [])
+  }, [profile])
 
   return (
     <>
