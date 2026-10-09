@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { supabase } from '../lib/supabaseClient'
 import { useAuth } from '../context/AuthContext'
+import { categoryIsRealAge } from '../lib/age'
 import type { AgeCategory, Test, TestAttempt } from '../types/database'
 
 const CARD_COLORS = ['coral', 'teal', 'gold']
@@ -56,7 +57,7 @@ function DashboardPage() {
           return (
             <article className={`category-card ${CARD_COLORS[index % CARD_COLORS.length]}`} key={category.id}>
               <div className="card-topline">
-                <span>{category.min_age} - {category.max_age} años</span>
+                <span>{category.min_age} - {category.max_age}{categoryIsRealAge(category.min_age) ? ' años' : ''}</span>
                 <span>{String(categoryTests.length).padStart(2, '0')}</span>
               </div>
               <h3>{category.name}</h3>

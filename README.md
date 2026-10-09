@@ -96,6 +96,8 @@ Ventajas de este formato: Google Sheets permite que el profesor y sus ayudantes 
 
 El nivel del examen (`facil`, `medio` o `dificil`) lo asigna la app automaticamente segun la categoria de edad elegida al registrarse; el participante **no** elige el nivel. El mapeo fijo es: `2-3`/`4-5` -> facil, `6-7`/`8-9` -> medio, `10-11`/`18-35`/`+35` -> dificil (implementado en `src/lib/age.ts` y reforzado en el servidor por el trigger de la migracion `0007_auto_difficulty.sql`, que recalcula `profiles.difficulty` a partir de `age_categories.min_age` y asi protege contra llamadas directas a la API). La categoria de edad conserva el aviso no bloqueante si no coincide con la edad declarada.
 
+Nota: a pesar de llamarse "categorias de edad" (tabla `age_categories`), solo `18-35` y `+35` son edades reales. `2-3`, `4-5`, `6-7`, `8-9` y `10-11` son clases/niveles del profesor que casualmente usan el mismo formato de rango numerico; por eso la interfaz no les añade la palabra "años" (ver `categoryIsRealAge()` en `src/lib/age.ts`, que decide esto por `min_age >= 18`).
+
 Ejemplo real: [content/ejemplo_1_samuel_1.csv](content/ejemplo_1_samuel_1.csv) muestra como quedarian las preguntas de `Intrebari 1 Samuel 1.pdf` (categorias "2-3" y "8-9", preguntas de una sola respuesta) ya pasadas a la plantilla.
 
 Leyenda pensada para el profesor (que columnas rellenar, valores permitidos de `tipo`, errores comunes): [content/leyenda_plantilla.md](content/leyenda_plantilla.md).

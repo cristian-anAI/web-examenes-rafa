@@ -22,3 +22,12 @@ export function difficultyForMinAge(minAge: number): 'facil' | 'medio' | 'difici
   return 'dificil'
 }
 
+/**
+ * Categories 2-3, 4-5, 6-7, 8-9 and 10-11 are class/grade groupings (the
+ * professor's own wording: "clases"), not literal age ranges, so their
+ * labels must not say "años". Only 18-35 and +35 represent real ages.
+ */
+export function categoryIsRealAge(minAge: number): boolean {
+  return minAge >= 18
+}
+

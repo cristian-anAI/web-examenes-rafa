@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState, type FormEvent } from 'react'
 import { Link, Navigate, useNavigate } from 'react-router-dom'
 import { supabase, isSupabaseConfigured } from '../lib/supabaseClient'
-import { calculateAge, difficultyForMinAge } from '../lib/age'
+import { calculateAge, categoryIsRealAge, difficultyForMinAge } from '../lib/age'
 import { useAuth } from '../context/AuthContext'
 import type { AgeCategory } from '../types/database'
 
@@ -37,7 +37,10 @@ function SignUpPage() {
     if (!category) return null
     const age = calculateAge(birthDate)
     if (age < category.min_age || age > category.max_age) {
-      return `Aviso: la edad introducida (${age} años) no coincide con el rango habitual de "${category.name}" (${category.min_age}-${category.max_age} años). Puedes continuar igualmente.`
+      const rangeLabel = categoryIsRealAge(category.min_age)
+        ? `${category.min_age}-${category.max_age} años`
+        : `${category.min_age}-${category.max_age}`
+      return `Aviso: la edad introducida (${age} años) no coincide con el rango habitual de "${category.name}" (${rangeLabel}). Puedes continuar igualmente.`
     }
     return null
   }, [birthDate, categoryId, categories])
@@ -110,7 +113,7 @@ function SignUpPage() {
           <select value={categoryId} onChange={(event) => setCategoryId(event.target.value)} required>
             {categories.map((category) => (
               <option key={category.id} value={category.id}>
-                {category.name} ({category.min_age}-{category.max_age} años)
+                {category.name} ({category.min_age}-{category.max_age}{categoryIsRealAge(category.min_age) ? ' años' : ''})
               </option>
             ))}
           </select>
